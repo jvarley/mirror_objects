@@ -151,8 +151,8 @@ int main(int argc, char**argv){
 				   targetDir.c_str(), newName.c_str());
   
     if(_no_rot_exists){
-	predObj->SetFullSearch(false);
-	search_space = "ShiftSearch";
+        predObj->SetFullSearch(false);
+        search_space = "ShiftSearch";
     }
     predObj->Mirror(filter);
 
@@ -459,6 +459,11 @@ bool readOptArgs(int argc, char**argv, int offset){
 	ifs >> mStereo;
 	mFocal = mStereo.mLeftInt.GetF();
 	mCentre = mStereo.mLeftInt.GetC();
+    std::cout <<"Hardcoding mFocal and mCentre" << std::endl;
+    mCentre.x = 320.0;
+    mCentre.y = 240.0;
+    mFocal.x = 525;
+    mFocal.y = 525;
     }
   
   bool mask_exists = false;

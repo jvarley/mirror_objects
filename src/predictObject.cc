@@ -283,6 +283,11 @@ void PredictObject::Mirror( bool filter )
 						mDepthLU, 
 						mMask, 
 						lPoints);
+
+  std::cout << "mMask size: " << mMask.size() << std::endl;
+  std::string mask_file = "/home/jvarley/out/mMask.png";
+  std::cout << "Writing Mask to : " << mask_file.c_str()<< std::endl;
+  cv::imwrite(mask_file.c_str(), mMask);
     
   std::cout << "Determine Mirroring Parameters ..." << std::endl;
   vector<cv::Point3f> normals;
@@ -291,6 +296,7 @@ void PredictObject::Mirror( bool filter )
   
   if(full_search_)
   {
+      std::cout << "running: MirrorCloudSearchOrient" << std::endl;
       MirrorCloudSearchOrient(lPoints, 
 			      lFLANNIdx, 
 			      avg3D, 
@@ -301,7 +307,7 @@ void PredictObject::Mirror( bool filter )
 			      original);
   } 
   else {
-      
+      std::cout << "running: MirrorCloud" << std::endl;
       MirrorCloud(lPoints, 
 		  lFLANNIdx, avg3D, 
 		  lab_cloud, mir_cloud, 
@@ -374,8 +380,10 @@ void PredictObject::ProjectOnTable( vector<cv::Point3f> &lCloud,
     indices2.reserve(lCloud.size());
     indices2.resize(lCloud.size(),0);
     for(unsigned int k=0; k < lCloud.size(); k++)
-	indices2.at(k)=k;
-  
+    {
+        indices2.at(k)=k;
+    }
+
     float distX = maxX - minX;
     float distY = maxY - minY;
   
@@ -439,12 +447,19 @@ void PredictObject::CalcPCA( bool calcCH )
   int width = mProj.size().width;
   int height = mProj.size().height;
 
+
+
   int k = cv::countNonZero(mProj);
 
   CvMat* src = cvCreateMat( k, 2, CV_32FC1 );   
   int step = src->step/sizeof(float);     
   
   
+  std::cout << "mProj.size().width: " << mProj.size().width << std::endl;
+  std::cout << "mProj.size().height: " << mProj.size().height << std::endl;
+  std::cout << "k: " << k << std::endl;
+  std::cout << "step: " << step << std::endl;
+
   CvPoint* points = (CvPoint*)malloc( k * sizeof(CvPoint));
   CvMat pointMat = cvMat( 1, k, CV_32SC2, points );
   CvPoint pt0;
@@ -1049,7 +1064,7 @@ bool PredictObject::ProjectPoint(const float x, const float y,
       plaus.first = false;
       plaus.second = diff;
       if(maxDiverge<diff)
-	maxDiverge=diff;
+           maxDiverge=diff;
       nDiverge++;
 
     } else if (ptsDepth<origDepth){
@@ -1394,19 +1409,18 @@ void PredictObject::MirrorShift(std::vector<std::vector<cv::Point3f> > &lMirrore
 	lMirCloud.push_back(pt);
       }
     }
-    
-    
+
     if(offset==0){
       // get extend of mirrored point cloud along perpendicular axis
       stepsize = minIdxToMirror/HYPOS;
       if(minIdxToMirror<maxIdxToMirror){
-	stepsize = std::abs(stepsize);
-	lStepSizes.push_back(stepsize);
-	shift3D = maxIdxToMirror - minIdxToMirror;
+        stepsize = std::abs(stepsize);
+        lStepSizes.push_back(stepsize);
+        shift3D = maxIdxToMirror - minIdxToMirror;
       } else {
-	stepsize = -std::abs(stepsize);
-	lStepSizes.push_back(stepsize);
-	shift3D = minIdxToMirror - maxIdxToMirror;
+        stepsize = -std::abs(stepsize);
+        lStepSizes.push_back(stepsize);
+        shift3D = minIdxToMirror - maxIdxToMirror;
       }
 
 
@@ -1445,6 +1459,22 @@ void PredictObject::MirrorShift(std::vector<std::vector<cv::Point3f> > &lMirrore
     ProjectOnImage(lMirCloud, mMask, avg3D, &lFLANNIdx, 
 		   lPoints, lImg, lOver, mDepthLU, lPlaus);
     
+    std::cout << "lImg size: " << lImg.size() << std::endl;
+    std::string lImg_file = "/home/jvarley/out/lImg";
+    std::ostringstream oss;
+     oss << offset;
+    lImg_file.append(oss.str());
+    lImg_file.append(".png");
+    std::cout << "Writing lImg points from mirrored outside of mask to : " << lImg_file.c_str()<< std::endl;
+    cv::imwrite(lImg_file.c_str(), lImg);
+
+    std::cout << "lOver size: " << lOver.size() << std::endl;
+    std::string lOver_file = "/home/jvarley/out/lOver";
+    lOver_file.append(oss.str());
+    lOver_file.append(".png");
+    std::cout << "Writing lOver points inside of mask, that are closer than original to : " << lOver_file.c_str()<< std::endl;
+    cv::imwrite(lOver_file.c_str(), lOver);
+
     Vote lVote = GetVote(lImg, lOver);
     
     Divergence2Plausability(lPlaus);
@@ -1738,15 +1768,15 @@ void PredictObject::Divergence2Plausability(std::vector<std::pair<bool,float> > 
        i!=lPlaus.end();++i)
      {
        if(i->first){
-	 // point was in occluded area
-	   // This should probbaly be changed to 
-	   // i->second = MapRanges( maxHidden, 0,
+        // point was in occluded area
+        // This should probbaly be changed to
+        // i->second = MapRanges( maxHidden, 0,
            // orig_plaus,0.5,
            // i->second);
-	   // to say that point farer away from original points fall off 
-	   // in probability
-	   // THE SAME WITH DIVERGENCE
-	 i->second = MapRanges( maxHidden, 0,
+        // to say that point farer away from original points fall off
+        // in probability
+        // THE SAME WITH DIVERGENCE
+        i->second = MapRanges( maxHidden, 0,
 				0.5, orig_plaus,
 				i->second);
        } else {

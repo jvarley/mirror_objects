@@ -35,7 +35,8 @@
 #include "parse.h"
 #include <stdio.h>
 #include <string>
-
+#include <pcl/io/io.h>
+#include <pcl/io/pcd_io.h>
 
 float getRGB( float r, float g, float b){
   union{ int intp; float floatp; } a;
@@ -108,29 +109,53 @@ parse_file_extension_argument (int argc, char** argv,
 }
 
 void parsePoints(const char *filename,std::vector<cv::Point3f> &points){
-  FILE *fp=fopen(filename,"r");
-  int num_pts=0;
-  if(!fp){
-    fprintf(stderr,"Can't open %s\n",filename);
-    return;
-  }
-  int ret;
-  ret=fscanf(fp,"%d\n",&num_pts);
-  int orig_pts_start=points.size();
-  
-  points.resize (points.size()+num_pts);
-  
-  for(int i=0; i < num_pts; i++){
-    cv::Point3f pt;
-    int color_i[3];
-    ret=fscanf(fp,"%f %f %f %*d %*d %d %d %d\n",&pt.x,&pt.y,&pt.z,&color_i[0],&color_i[1],&color_i[2]);
-    //float rgb = getRGB((color_i[0]/255.0),(color_i[1]/255.0),(color_i[2]/255.0));
-    //printf("%d %d %d %f\n",color_i[0],(color_i[1]),(color_i[2]),rgb);
-    points[orig_pts_start+i]=pt;
-    //cloud.channels[color_chan].values[orig_pts_start+i]=rgb;
 
-  }
-  fclose(fp);
+    const char * end = strrchr(filename, '.');
+     if(strcmp(end,".pcd") == 0) {
+          //ends with csv
+         std::cout << "We have a pcd:\n" << std::endl;
+         pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud (new pcl::PointCloud<pcl::PointXYZRGBA>);
+         pcl::io::loadPCDFile (filename, *cloud);
+
+         int orig_pts_start=points.size();
+         points.resize (points.size()+cloud->points.size());
+
+         int i= 0;
+         for(pcl::PointCloud<pcl::PointXYZRGBA>::iterator it = cloud->begin(); it != cloud->end(); it++){
+            cv::Point3f pt;
+            pt.x = it->x*100;
+            pt.y = it->y*100;
+            pt.z = it->z*100;
+            points[orig_pts_start+i]=pt;
+            i++;
+          }
+      }
+     else if(strcmp(end,".crd") == 0) {
+         std::cout << "We have a crd:\n" << std::endl;
+         FILE *fp=fopen(filename,"r");
+         int num_pts=0;
+         if(!fp){
+           fprintf(stderr,"Can't open %s\n",filename);
+           return;
+         }
+         std::cout << "Using parsePoints that takes std::vector<cv::Point3f> to parse:\n" << std::endl;
+         int ret;
+         ret=fscanf(fp,"%d\n",&num_pts);
+         int orig_pts_start=points.size();
+
+         points.resize (points.size()+num_pts);
+
+         for(int i=0; i < num_pts; i++){
+           cv::Point3f pt;
+           int color_i[3];
+           ret=fscanf(fp,"%f %f %f %*d %*d %d %d %d\n",&pt.x,&pt.y,&pt.z,&color_i[0],&color_i[1],&color_i[2]);
+           //float rgb = getRGB((color_i[0]/255.0),(color_i[1]/255.0),(color_i[2]/255.0));
+           //printf("%d %d %d %f\n",color_i[0],(color_i[1]),(color_i[2]),rgb);
+           points[orig_pts_start+i]=pt;
+           //cloud.channels[color_chan].values[orig_pts_start+i]=rgb;
+         }
+         fclose(fp);
+     }
 }
 
 void parsePoints(const char *filename,std::vector<Vox> &points){
@@ -140,6 +165,9 @@ void parsePoints(const char *filename,std::vector<Vox> &points){
     fprintf(stderr,"Can't open %s\n",filename);
     return;
   }
+
+  std::cout << "Using parsePoints that takes std::vector<Vox> to parse:\n" << std::endl;
+
   int ret;
   ret=fscanf(fp,"%d\n",&num_pts);
   int orig_pts_start=points.size();
@@ -175,6 +203,8 @@ void parsePoints(const char *filename, sensor_msgs::PointCloud2 &cloud){
     fprintf(stderr,"Can't open %s\n",filename);
     return;
   }
+  fprintf(stdout,"Using parsePoints that takes sensor_msgs::PointCloud2 &cloud to parse: %s\n",filename);
+  std::cout << "Using parsePoints that takes  sensor_msgs::PointCloud2 &cloud to parse:\n" << std::endl;
   int ret;
   ret=fscanf(fp,"%d\n",&num_pts);
   
