@@ -284,10 +284,10 @@ void PredictObject::Mirror( bool filter )
 						mMask, 
 						lPoints);
 
-  std::cout << "mMask size: " << mMask.size() << std::endl;
-  std::string mask_file = "/home/jvarley/out/mMask.png";
-  std::cout << "Writing Mask to : " << mask_file.c_str()<< std::endl;
-  cv::imwrite(mask_file.c_str(), mMask);
+//  std::cout << "mMask size: " << mMask.size() << std::endl;
+//  std::string mask_file = "/home/jvarley/out/mMask.png";
+//  std::cout << "Writing Mask to : " << mask_file.c_str()<< std::endl;
+//  cv::imwrite(mask_file.c_str(), mMask);
     
   std::cout << "Determine Mirroring Parameters ..." << std::endl;
   vector<cv::Point3f> normals;
@@ -1459,21 +1459,21 @@ void PredictObject::MirrorShift(std::vector<std::vector<cv::Point3f> > &lMirrore
     ProjectOnImage(lMirCloud, mMask, avg3D, &lFLANNIdx, 
 		   lPoints, lImg, lOver, mDepthLU, lPlaus);
     
-    std::cout << "lImg size: " << lImg.size() << std::endl;
-    std::string lImg_file = "/home/jvarley/out/lImg";
-    std::ostringstream oss;
-     oss << offset;
-    lImg_file.append(oss.str());
-    lImg_file.append(".png");
-    std::cout << "Writing lImg points from mirrored outside of mask to : " << lImg_file.c_str()<< std::endl;
-    cv::imwrite(lImg_file.c_str(), lImg);
+//    std::cout << "lImg size: " << lImg.size() << std::endl;
+//    std::string lImg_file = "/home/jvarley/out/lImg";
+//    std::ostringstream oss;
+//     oss << offset;
+//    lImg_file.append(oss.str());
+//    lImg_file.append(".png");
+//    std::cout << "Writing lImg points from mirrored outside of mask to : " << lImg_file.c_str()<< std::endl;
+//    cv::imwrite(lImg_file.c_str(), lImg);
 
-    std::cout << "lOver size: " << lOver.size() << std::endl;
-    std::string lOver_file = "/home/jvarley/out/lOver";
-    lOver_file.append(oss.str());
-    lOver_file.append(".png");
-    std::cout << "Writing lOver points inside of mask, that are closer than original to : " << lOver_file.c_str()<< std::endl;
-    cv::imwrite(lOver_file.c_str(), lOver);
+//    std::cout << "lOver size: " << lOver.size() << std::endl;
+//    std::string lOver_file = "/home/jvarley/out/lOver";
+//    lOver_file.append(oss.str());
+//    lOver_file.append(".png");
+//    std::cout << "Writing lOver points inside of mask, that are closer than original to : " << lOver_file.c_str()<< std::endl;
+//    cv::imwrite(lOver_file.c_str(), lOver);
 
     Vote lVote = GetVote(lImg, lOver);
     
