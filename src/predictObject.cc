@@ -2342,7 +2342,7 @@ void PredictObject::writeAsPLY(const string& file,
   ofs << "end_header" << endl;
 
   for(size_t i = 0; i < vtx.size(); ++i)
-      ofs << vtx[i][0] << " " << vtx[i][1] << " " << vtx[i][2] << endl;
+      ofs << vtx[i][0]/100.0 << " " << vtx[i][1]/100.0 << " " << vtx[i][2]/100.0 << endl;
   
   
   for(size_t i = 0; i < faces.size(); ++i){

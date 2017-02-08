@@ -288,12 +288,15 @@ int main(int argc, char**argv){
     float hypo = 0, orig = 255;
 
     for(unsigned int i=0; i < point_vec.size(); i++){
+        float x = (point_vec[i].x / 100.0);
+        float y = (point_vec[i].y / 100.0);
+        float z = (point_vec[i].z / 100.0);
 	memcpy (&mirrored_cloud.data[i * mirrored_cloud.point_step + mirrored_cloud.fields[0].offset], 
-		&point_vec[i].x, sizeof (float));
+		&x, sizeof (float));
 	memcpy (&mirrored_cloud.data[i * mirrored_cloud.point_step + mirrored_cloud.fields[1].offset], 
-		&point_vec[i].y, sizeof (float));
+		&y, sizeof (float));
 	memcpy (&mirrored_cloud.data[i * mirrored_cloud.point_step + mirrored_cloud.fields[2].offset], 
-		&point_vec[i].z, sizeof (float));
+		&z, sizeof (float));
 	memcpy (&mirrored_cloud.data[i * mirrored_cloud.point_step + mirrored_cloud.fields[3].offset], 
 		&plausibilities[i], sizeof (float));
 	memcpy (&mirrored_cloud.data[i * mirrored_cloud.point_step + mirrored_cloud.fields[4].offset], 
